@@ -1,10 +1,11 @@
-# [Project name]
+# HireForge AI
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+AI-powered career intelligence and recruitment operating system for enterprise recruiters, hiring managers, and job seekers.
 
 ## Run & Operate
 
 - `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
+- `pnpm --filter @workspace/hireforge-ai run dev` — run the frontend
 - `pnpm run typecheck` — full typecheck across all packages
 - `pnpm run build` — typecheck + build all packages
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
@@ -14,23 +15,38 @@ _Replace the heading above with the project's name, and this line with one sente
 ## Stack
 
 - pnpm workspaces, Node.js 24, TypeScript 5.9
+- Frontend: React 18 + Vite, Tailwind CSS v4, Wouter, TanStack Query, Recharts, Framer Motion
 - API: Express 5
 - DB: PostgreSQL + Drizzle ORM
-- Validation: Zod (`zod/v4`), `drizzle-zod`
+- Validation: Zod (v4 subpath)
 - API codegen: Orval (from OpenAPI spec)
 - Build: esbuild (CJS bundle)
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- OpenAPI spec: `lib/api-spec/openapi.yaml` (source of truth)
+- DB schema: `lib/db/src/schema/` (users, jobs, resumes, github_analyses, reports, activity)
+- API routes: `artifacts/api-server/src/routes/` (auth, users, jobs, resumes, github, reports, dashboard, admin)
+- Frontend pages: `artifacts/hireforge-ai/src/pages/`
+- Generated hooks: `lib/api-client-react/src/generated/`
+- Generated Zod: `lib/api-zod/src/generated/`
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- Contract-first: OpenAPI spec gates all codegen; never hand-write types that Orval produces.
+- Session store is an in-memory Map — replace with Redis for production.
+- Resume/GitHub analysis uses heuristic scoring — wire up OpenAI/Anthropic for real AI features.
+- Dark mode default via `.dark` class on `<html>`; uses CSS custom properties throughout.
+- Auth uses simple Bearer tokens in localStorage — replace with httpOnly cookies + refresh tokens for production.
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+HireForge AI provides: job application pipeline tracking, AI-powered resume scoring and analysis, GitHub developer profile scoring, user and admin dashboards with KPI cards and charts, and analytics reports — all in a premium dark enterprise UI.
+
+## Demo Credentials
+
+- `alex@hireforge.ai` / `password123` (user)
+- `jordan@hireforge.ai` / `password123` (admin)
 
 ## User preferences
 
@@ -38,7 +54,10 @@ _Populate as you build — explicit user instructions worth remembering across s
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
+- Always run `pnpm --filter @workspace/api-spec run codegen` after changing `lib/api-spec/openapi.yaml`
+- Always run `pnpm run typecheck:libs` after changing any `lib/*` package before checking artifacts
+- `zod/v4` subpath requires `zod` listed as a dependency in `artifacts/api-server/package.json`
+- Session tokens are in-memory; restarting the API server clears all sessions (users need to log in again)
 
 ## Pointers
 
