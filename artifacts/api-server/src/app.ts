@@ -1,10 +1,55 @@
 import express, { type Express } from "express";
 import cors from "cors";
 import pinoHttp from "pino-http";
+import crypto from "node:crypto";
+import { eq } from "drizzle-orm";
+import { db, usersTable } from "@workspace/db";
 import router from "./routes";
 import { logger } from "./lib/logger";
 
 const app: Express = express();
+
+function hashPassword(password: string): string {
+  return crypto.createHash("sha256").update(password + "hireforge_salt").digest("hex");
+}
+
+async function seedDemoUsers() {
+  const demoUsers = [
+    {
+      name: "Alex Carter",
+      email: "alex@hireforge.ai",
+      passwordHash: hashPassword("password123"),
+      role: "user",
+      company: "HireForge AI",
+      title: "Career Professional",
+    },
+    {
+      name: "Jordan Lee",
+      email: "jordan@hireforge.ai",
+      passwordHash: hashPassword("password123"),
+      role: "admin",
+      company: "HireForge AI",
+      title: "Platform Admin",
+    },
+  ];
+
+  for (const demoUser of demoUsers) {
+    const existing = await db
+      .select()
+      .from(usersTable)
+      .where(eq(usersTable.email, demoUser.email))
+      .limit(1);
+
+    if (existing.length === 0) {
+      await db.insert(usersTable).values(demoUser);
+      logger.info({ email: demoUser.email, role: demoUser.role }, "Seeded demo user");
+    }
+  }
+}
+
+seedDemoUsers().catch((err) => {
+  logger.error({ err }, "Failed to seed demo users");
+});
 
 app.use(
   pinoHttp({
