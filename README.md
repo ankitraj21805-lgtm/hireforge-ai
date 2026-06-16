@@ -6,6 +6,17 @@ HireForge AI is an enterprise-grade platform that gives recruiters, hiring manag
 
 ---
 
+## 🚀 Live Demo
+
+| Service | Live URL |
+|--------|----------|
+| Frontend App | https://hireforge-ai-hireforge-ai-nu.vercel.app |
+| Backend API | https://hireforge-ai-api.onrender.com |
+
+> Note: The backend is deployed on Render Free, so the first request may take some time after inactivity.
+
+---
+
 ## Features
 
 | Module | Description |
